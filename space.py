@@ -8,6 +8,10 @@ async def blink(canvas, row, column, symbol="*"):
     delays = [20, 3, 5, 3]
 
     while True:
+        # случайное смещение
+        for _ in range(random.randint(0, 6)):
+            await asyncio.sleep(0)
+
         canvas.addstr(row, column, symbol, curses.A_DIM)
         for _ in range(delays[0]):
             await asyncio.sleep(0)
@@ -47,7 +51,6 @@ def draw(canvas):
         for coroutine in coroutines.copy():
             try:
                 coroutine.send(None)
-
             except StopIteration:
                 coroutines.remove(coroutine)
         if len(coroutines) == 0:
