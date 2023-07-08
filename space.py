@@ -1,6 +1,7 @@
 import time
 import asyncio
 import curses
+import random
 
 
 async def blink(canvas, row, column, symbol="*"):
@@ -19,17 +20,25 @@ async def blink(canvas, row, column, symbol="*"):
 
 
 def draw(canvas):
-    canvas.refresh()
-    row, column = (5, 20)
-    canvas.addstr(row, column, "Hello, World!")
     canvas.border()
     canvas.refresh()
     curses.curs_set(False)
 
-    delays = [2, 0.3, 0.5, 0.3]  # Задержка в миллисекундах между кадрами
-    j = 0
+    max_y, max_x = canvas.getmaxyx()
+    number_of_stars = 100
 
-    coroutines = [blink(canvas, 3, i * 2) for i in range(1, 6)]
+    coroutines = [
+        blink(
+            canvas,
+            random.randint(1, max_y - 2),
+            random.randint(1, max_x - 2),
+            random.choice("+*.:"),
+        )
+        for _ in range(number_of_stars)
+    ]
+
+    delays = [2, 0.3, 0.5, 0.3]
+    j = 0
 
     while True:
         for coroutine in coroutines.copy():
