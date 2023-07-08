@@ -28,21 +28,10 @@ def draw(canvas):
 
     coro = blink(canvas, 3, 3)
 
-    coro.send(None)
-    canvas.refresh()
-    time.sleep(1)
-    coro.send(None)
-    canvas.refresh()
-    time.sleep(1)
-    coro.send(None)
-    canvas.refresh()
-    time.sleep(1)
-    coro.send(None)
-    canvas.refresh()
-    time.sleep(1)
-    coro.send(None)
-
-    time.sleep(1)
+    while True:
+        coro.send(None)
+        canvas.refresh()
+        time.sleep(1)
 
     # frames = [
     #     "*",  # 1 кадр
