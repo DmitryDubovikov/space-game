@@ -3,7 +3,7 @@ import asyncio
 import curses
 import random
 from itertools import cycle
-from curses_tools import draw_frame, read_controls
+from curses_tools import draw_frame, read_controls, get_frame_size
 
 
 async def blink(canvas, row, column, symbol="*"):
@@ -64,10 +64,25 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
 async def fly(canvas, start_row, start_column, frames):
     """Display animation of spaceship"""
 
+    rows, columns = canvas.getmaxyx()
+    max_row, max_column = rows, columns
+
     for frame in cycle(frames):
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
-        start_row += rows_direction
-        start_column += columns_direction
+        size_y, size_x = get_frame_size(frame)
+
+        if rows_direction == 1 and (start_row + 1 + size_y < max_row):
+            start_row += 1
+
+        if rows_direction == -1 and (start_row - 1 >= 0):
+            start_row -= 1
+
+        if columns_direction == 1 and (start_column + 1 + size_x < max_column):
+            start_column += 1
+
+        if columns_direction == -1 and (start_column - 1 > 0):
+            start_column -= 1
+
         draw_frame(canvas, start_row, start_column, frame)
         await asyncio.sleep(0)
         draw_frame(canvas, start_row, start_column, frame, True)
