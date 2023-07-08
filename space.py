@@ -5,18 +5,24 @@ import random
 
 
 async def blink(canvas, row, column, symbol="*"):
+    delays = [20, 3, 5, 3]
+
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        await asyncio.sleep(0)
+        for _ in range(delays[0]):
+            await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)
-        await asyncio.sleep(0)
+        for _ in range(delays[1]):
+            await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        await asyncio.sleep(0)
+        for _ in range(delays[2]):
+            await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)
-        await asyncio.sleep(0)
+        for _ in range(delays[3]):
+            await asyncio.sleep(0)
 
 
 def draw(canvas):
@@ -37,9 +43,6 @@ def draw(canvas):
         for _ in range(number_of_stars)
     ]
 
-    delays = [2, 0.3, 0.5, 0.3]
-    j = 0
-
     while True:
         for coroutine in coroutines.copy():
             try:
@@ -50,8 +53,7 @@ def draw(canvas):
         if len(coroutines) == 0:
             break
         canvas.refresh()
-        time.sleep(delays[j])
-        j = (j + 1) % 4
+        time.sleep(0.1)
 
 
 if __name__ == "__main__":
