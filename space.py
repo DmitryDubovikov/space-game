@@ -3,7 +3,7 @@ import asyncio
 import curses
 import random
 from itertools import cycle
-from curses_tools import draw_frame
+from curses_tools import draw_frame, read_controls
 
 
 async def blink(canvas, row, column, symbol="*"):
@@ -65,6 +65,9 @@ async def fly(canvas, start_row, start_column, frames):
     """Display animation of spaceship"""
 
     for frame in cycle(frames):
+        rows_direction, columns_direction, space_pressed = read_controls(canvas)
+        start_row += rows_direction
+        start_column += columns_direction
         draw_frame(canvas, start_row, start_column, frame)
         await asyncio.sleep(0)
         draw_frame(canvas, start_row, start_column, frame, True)
@@ -74,6 +77,7 @@ def draw(canvas):
     TIC_TIMEOUT = 0.1
     canvas.border()
     canvas.refresh()
+    canvas.nodelay(True)
     curses.curs_set(False)
 
     max_y, max_x = canvas.getmaxyx()
@@ -96,8 +100,10 @@ def draw(canvas):
         for _ in range(number_of_stars)
     ]
 
-    coroutines.append(fire(canvas, max_y // 2, max_x // 2))
-    coroutines.append(fly(canvas, max_y // 2, max_x // 2 - 2, spaceship_frames))
+    y, x = max_y // 2, max_x // 2
+
+    coroutines.append(fire(canvas, y, x))
+    coroutines.append(fly(canvas, y, x - 2, spaceship_frames))
 
     while True:
         for coroutine in coroutines.copy():
