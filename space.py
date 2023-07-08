@@ -26,13 +26,12 @@ def draw(canvas):
     canvas.refresh()
     curses.curs_set(False)
 
-    # coro = blink(canvas, 3, 3)
+    delays = [2, 0.3, 0.5, 0.3]  # Задержка в миллисекундах между кадрами
+    j = 0
 
     coroutines = [blink(canvas, 3, i * 2) for i in range(1, 6)]
 
     while True:
-        canvas.refresh()
-        time.sleep(1)
         for coroutine in coroutines.copy():
             try:
                 coroutine.send(None)
@@ -41,26 +40,9 @@ def draw(canvas):
                 coroutines.remove(coroutine)
         if len(coroutines) == 0:
             break
-
-    # frames = [
-    #     "*",  # 1 кадр
-    #     "*",  # 2 кадр
-    #     "*",  # 3 кадр
-    #     "*",  # 4 кадр
-    # ]
-    # attributes = [
-    #     curses.A_DIM,  # Атрибут для тусклой звезды
-    #     curses.A_NORMAL,  # Обычная звезда
-    #     curses.A_BOLD,  # Атрибут для яркой звезды
-    #     curses.A_NORMAL,  # Обычная звезда
-    # ]
-
-    # while True:
-    #     for frame, attribute in zip(frames, attributes):
-    #         canvas.clear()
-    #         canvas.addstr(5, 5, frame, attribute)
-    #         canvas.refresh()
-    #         time.sleep(1)
+        canvas.refresh()
+        time.sleep(delays[j])
+        j = (j + 1) % 4
 
 
 if __name__ == "__main__":
