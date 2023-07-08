@@ -2,6 +2,8 @@ import time
 import asyncio
 import curses
 import random
+from itertools import cycle
+from curses_tools import draw_frame
 
 
 async def blink(canvas, row, column, symbol="*"):
@@ -9,7 +11,7 @@ async def blink(canvas, row, column, symbol="*"):
 
     while True:
         # случайное смещение
-        for _ in range(random.randint(0, 6)):
+        for _ in range(random.randint(0, 8)):
             await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol, curses.A_DIM)
@@ -59,6 +61,16 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
         column += columns_speed
 
 
+async def fly(canvas, start_row, start_column, frames):
+    """Display animation of spaceship"""
+
+    for frame in cycle(frames):
+        draw_frame(canvas, start_row, start_column, frame)
+        for _ in range(random.randint(0, 3)):
+            await asyncio.sleep(0)
+        draw_frame(canvas, start_row, start_column, frame, True)
+
+
 def draw(canvas):
     canvas.border()
     canvas.refresh()
@@ -66,6 +78,13 @@ def draw(canvas):
 
     max_y, max_x = canvas.getmaxyx()
     number_of_stars = 100
+
+    spaceship_frames = []
+    with open("rocket_frame_1.txt", "r") as f:
+        spaceship_frames.append(f.read())
+
+    with open("rocket_frame_2.txt", "r") as f:
+        spaceship_frames.append(f.read())
 
     coroutines = [
         blink(
@@ -78,6 +97,7 @@ def draw(canvas):
     ]
 
     coroutines.append(fire(canvas, max_y // 2, max_x // 2))
+    coroutines.append(fly(canvas, max_y // 2, max_x // 2 - 2, spaceship_frames))
 
     while True:
         for coroutine in coroutines.copy():
