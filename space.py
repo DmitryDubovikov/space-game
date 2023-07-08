@@ -72,6 +72,7 @@ async def fly(canvas, start_row, start_column, frames):
 
 
 def draw(canvas):
+    TIC_TIMEOUT = 0.1
     canvas.border()
     canvas.refresh()
     curses.curs_set(False)
@@ -108,7 +109,7 @@ def draw(canvas):
         if len(coroutines) == 0:
             break
         canvas.refresh()
-        time.sleep(0.1)
+        time.sleep(TIC_TIMEOUT)
 
 
 if __name__ == "__main__":
