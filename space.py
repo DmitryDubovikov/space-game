@@ -26,12 +26,21 @@ def draw(canvas):
     canvas.refresh()
     curses.curs_set(False)
 
-    coro = blink(canvas, 3, 3)
+    # coro = blink(canvas, 3, 3)
+
+    coroutines = [blink(canvas, 3, i * 2) for i in range(1, 6)]
 
     while True:
-        coro.send(None)
         canvas.refresh()
         time.sleep(1)
+        for coroutine in coroutines.copy():
+            try:
+                coroutine.send(None)
+
+            except StopIteration:
+                coroutines.remove(coroutine)
+        if len(coroutines) == 0:
+            break
 
     # frames = [
     #     "*",  # 1 кадр
