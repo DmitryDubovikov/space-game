@@ -66,8 +66,7 @@ async def fly(canvas, start_row, start_column, frames):
 
     for frame in cycle(frames):
         draw_frame(canvas, start_row, start_column, frame)
-        for _ in range(random.randint(0, 3)):
-            await asyncio.sleep(0)
+        await asyncio.sleep(0)
         draw_frame(canvas, start_row, start_column, frame, True)
 
 
