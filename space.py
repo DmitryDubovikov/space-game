@@ -51,6 +51,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
 
     symbol = "-" if columns_speed else "|"
 
+    # ширина и высота всегда будут на единицу больше, чем координаты крайней ячейки т.к. нумерация начинается с нуля.
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows - 1, columns - 1
 
@@ -68,7 +69,7 @@ async def fly(canvas, start_row, start_column, frames):
     """Display animation of spaceship"""
 
     rows, columns = canvas.getmaxyx()
-    max_row, max_column = rows, columns
+    max_row, max_column = rows - 1, columns - 1
 
     duplicated_frames = [item for item in frames for _ in range(2)]
 
@@ -99,7 +100,9 @@ def draw(canvas):
     canvas.nodelay(True)
     curses.curs_set(False)
 
-    max_y, max_x = canvas.getmaxyx()
+    rows, columns = canvas.getmaxyx()
+    max_y, max_x = rows - 1, columns - 1
+    border_width = 1
     number_of_stars = 100
 
     spaceship_frames = []
@@ -112,8 +115,8 @@ def draw(canvas):
     coroutines = [
         blink(
             canvas,
-            random.randint(1, max_y - 2),
-            random.randint(1, max_x - 2),
+            random.randint(border_width, max_y - border_width),
+            random.randint(border_width, max_x - border_width),
             random.randint(0, 8),
             random.choice("+*.:"),
         )
