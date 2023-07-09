@@ -77,17 +77,21 @@ async def fly(canvas, start_row, start_column, frames):
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         size_y, size_x = get_frame_size(frame)
 
-        if rows_direction == 1 and (start_row + 1 + size_y < max_row):
-            start_row += 1
+        if (
+            rows_direction == 1
+            and (start_row + size_y < max_row)
+            or rows_direction == -1
+            and (start_row - 1 > 0)
+        ):
+            start_row += rows_direction
 
-        if rows_direction == -1 and (start_row - 1 >= 0):
-            start_row -= 1
-
-        if columns_direction == 1 and (start_column + 1 + size_x < max_column):
-            start_column += 1
-
-        if columns_direction == -1 and (start_column - 1 > 0):
-            start_column -= 1
+        if (
+            columns_direction == 1
+            and (start_column + size_x < max_column)
+            or columns_direction == -1
+            and (start_column - 1 > 0)
+        ):
+            start_column += columns_direction
 
         draw_frame(canvas, start_row, start_column, frame)
         await asyncio.sleep(0)
