@@ -6,12 +6,12 @@ from itertools import cycle
 from curses_tools import draw_frame, read_controls, get_frame_size
 
 
-async def blink(canvas, row, column, symbol="*"):
+async def blink(canvas, row, column, offset_tics=0, symbol="*"):
     delays = [20, 3, 5, 3]
 
     while True:
         # случайное смещение
-        for _ in range(random.randint(0, 8)):
+        for _ in range(offset_tics):
             await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol, curses.A_DIM)
@@ -110,6 +110,7 @@ def draw(canvas):
             canvas,
             random.randint(1, max_y - 2),
             random.randint(1, max_x - 2),
+            random.randint(0, 8),
             random.choice("+*.:"),
         )
         for _ in range(number_of_stars)
