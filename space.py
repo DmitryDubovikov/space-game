@@ -6,6 +6,9 @@ from itertools import cycle
 from curses_tools import draw_frame, read_controls, get_frame_size
 
 
+TIC_TIMEOUT = 0.1
+
+
 async def blink(canvas, row, column, offset_tics=0, symbol="*"):
     delays = [20, 3, 5, 3]
 
@@ -89,7 +92,6 @@ async def fly(canvas, start_row, start_column, frames):
 
 
 def draw(canvas):
-    TIC_TIMEOUT = 0.1
     canvas.border()
     canvas.refresh()
     canvas.nodelay(True)
@@ -133,6 +135,10 @@ def draw(canvas):
         time.sleep(TIC_TIMEOUT)
 
 
-if __name__ == "__main__":
+def main():
     curses.update_lines_cols()
     curses.wrapper(draw)
+
+
+if __name__ == "__main__":
+    main()
