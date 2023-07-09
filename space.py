@@ -70,7 +70,9 @@ async def fly(canvas, start_row, start_column, frames):
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows, columns
 
-    for frame in cycle(frames):
+    duplicated_frames = [item for item in frames for _ in range(2)]
+
+    for frame in cycle(duplicated_frames):
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         size_y, size_x = get_frame_size(frame)
 
