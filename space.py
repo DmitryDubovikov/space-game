@@ -162,7 +162,7 @@ async def fill_orbit_with_garbage(canvas, max_x, garbage_frames):
 
 
 def draw(canvas):
-    global coroutines
+    global coroutines, obstacles
 
     canvas.border()
     canvas.refresh()
