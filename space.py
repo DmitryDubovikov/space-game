@@ -136,7 +136,21 @@ def read_frames():
     return frames
 
 
+async def fill_orbit_with_garbage(canvas, max_x, garbage_frames):
+    global coroutines
+
+    while True:
+        coroutines.append(
+            fly_garbage(canvas, random.randint(1, max_x), random.choice(garbage_frames))
+        )
+
+        for _ in range(20):
+            await asyncio.sleep(0)
+
+
 def draw(canvas):
+    global coroutines
+
     canvas.border()
     canvas.refresh()
     canvas.nodelay(True)
@@ -145,7 +159,7 @@ def draw(canvas):
     rows, columns = canvas.getmaxyx()
     max_y, max_x = rows - 1, columns - 1
     border_width = 1
-    number_of_stars = 100
+    number_of_stars = 60
 
     frames = read_frames()
 
@@ -164,11 +178,7 @@ def draw(canvas):
 
     coroutines.append(fire(canvas, y, x))
     coroutines.append(fly(canvas, y, x - 2, frames["spaceship_frames"]))
-    coroutines.append(
-        fly_garbage(
-            canvas, random.randint(1, max_x), random.choice(frames["garbage_frames"])
-        )
-    )
+    coroutines.append(fill_orbit_with_garbage(canvas, max_x, frames["garbage_frames"]))
 
     while True:
         for coroutine in coroutines.copy():
