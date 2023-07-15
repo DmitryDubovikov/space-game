@@ -91,6 +91,8 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
 async def fly(canvas, row, column, frames):
     """Display animation of spaceship"""
 
+    global coroutines
+
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows - 1, columns - 1
     row_speed = column_speed = 0
@@ -100,6 +102,9 @@ async def fly(canvas, row, column, frames):
     for frame in cycle(duplicated_frames):
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         size_y, size_x = get_frame_size(frame)
+
+        if space_pressed:
+            coroutines.append(fire(canvas, row, column + size_x // 2))
 
         if (
             rows_direction == 1
