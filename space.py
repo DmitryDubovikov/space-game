@@ -4,9 +4,37 @@ import curses
 import random
 from itertools import cycle
 from curses_tools import draw_frame, read_controls, get_frame_size
+from physics import update_speed
 
 
 TIC_TIMEOUT = 0.1
+
+
+def read_frames():
+    frames = dict()
+
+    spaceship_frames = []
+    with open("rocket_frame_1.txt", "r") as f:
+        spaceship_frames.append(f.read())
+    with open("rocket_frame_2.txt", "r") as f:
+        spaceship_frames.append(f.read())
+    frames["spaceship_frames"] = spaceship_frames
+
+    garbage_frames = []
+    with open("trash_large.txt", "r") as f:
+        garbage_frames.append(f.read())
+    with open("trash_small.txt", "r") as f:
+        garbage_frames.append(f.read())
+    with open("trash_xl.txt", "r") as f:
+        garbage_frames.append(f.read())
+    frames["garbage_frames"] = garbage_frames
+
+    return frames
+
+
+async def sleep(tics=1):
+    for _ in range(tics):
+        await asyncio.sleep(0)
 
 
 async def blink(canvas, row, column, offset_tics=0, symbol="*"):
@@ -60,11 +88,12 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
         column += columns_speed
 
 
-async def fly(canvas, start_row, start_column, frames):
+async def fly(canvas, row, column, frames):
     """Display animation of spaceship"""
 
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows - 1, columns - 1
+    row_speed = column_speed = 0
 
     duplicated_frames = [item for item in frames for _ in range(2)]
 
@@ -74,23 +103,30 @@ async def fly(canvas, start_row, start_column, frames):
 
         if (
             rows_direction == 1
-            and (start_row + size_y < max_row)
+            and (row + size_y < max_row)
             or rows_direction == -1
-            and (start_row - 1 > 0)
+            and (row - 1 > 0)
         ):
-            start_row += rows_direction
+            row_speed, column_speed = update_speed(
+                row_speed, column_speed, rows_direction, 0
+            )
+            row += row_speed
 
         if (
             columns_direction == 1
-            and (start_column + size_x < max_column)
+            and (column + size_x < max_column)
             or columns_direction == -1
-            and (start_column - 1 > 0)
+            and (column - 1 > 0)
         ):
-            start_column += columns_direction
+            row_speed, column_speed = update_speed(
+                row_speed, column_speed, 0, columns_direction
+            )
 
-        draw_frame(canvas, start_row, start_column, frame)
+            column += column_speed
+
+        draw_frame(canvas, row, column, frame)
         await sleep(1)
-        draw_frame(canvas, start_row, start_column, frame, True)
+        draw_frame(canvas, row, column, frame, True)
 
 
 async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
@@ -107,33 +143,6 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
         await sleep()
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
-
-
-def read_frames():
-    frames = dict()
-
-    spaceship_frames = []
-    with open("rocket_frame_1.txt", "r") as f:
-        spaceship_frames.append(f.read())
-    with open("rocket_frame_2.txt", "r") as f:
-        spaceship_frames.append(f.read())
-    frames["spaceship_frames"] = spaceship_frames
-
-    garbage_frames = []
-    with open("trash_large.txt", "r") as f:
-        garbage_frames.append(f.read())
-    with open("trash_small.txt", "r") as f:
-        garbage_frames.append(f.read())
-    with open("trash_xl.txt", "r") as f:
-        garbage_frames.append(f.read())
-    frames["garbage_frames"] = garbage_frames
-
-    return frames
-
-
-async def sleep(tics=1):
-    for _ in range(tics):
-        await asyncio.sleep(0)
 
 
 async def fill_orbit_with_garbage(canvas, max_x, garbage_frames):
@@ -158,7 +167,7 @@ def draw(canvas):
     rows, columns = canvas.getmaxyx()
     max_y, max_x = rows - 1, columns - 1
     border_width = 1
-    number_of_stars = 60
+    number_of_stars = 90
 
     frames = read_frames()
 
