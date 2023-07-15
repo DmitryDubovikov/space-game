@@ -98,6 +98,44 @@ async def fly(canvas, start_row, start_column, frames):
         draw_frame(canvas, start_row, start_column, frame, True)
 
 
+async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
+    """Animate garbage, flying from top to bottom. Сolumn position will stay same, as specified on start."""
+    rows_number, columns_number = canvas.getmaxyx()
+
+    column = max(column, 0)
+    column = min(column, columns_number - 1)
+
+    row = 1
+
+    while row < rows_number:
+        draw_frame(canvas, row, column, garbage_frame)
+        await asyncio.sleep(0)
+        draw_frame(canvas, row, column, garbage_frame, negative=True)
+        row += speed
+
+
+def read_frames():
+    frames = dict()
+
+    spaceship_frames = []
+    with open("rocket_frame_1.txt", "r") as f:
+        spaceship_frames.append(f.read())
+    with open("rocket_frame_2.txt", "r") as f:
+        spaceship_frames.append(f.read())
+    frames["spaceship_frames"] = spaceship_frames
+
+    garbage_frames = []
+    with open("trash_large.txt", "r") as f:
+        garbage_frames.append(f.read())
+    with open("trash_small.txt", "r") as f:
+        garbage_frames.append(f.read())
+    with open("trash_xl.txt", "r") as f:
+        garbage_frames.append(f.read())
+    frames["garbage_frames"] = garbage_frames
+
+    return frames
+
+
 def draw(canvas):
     canvas.border()
     canvas.refresh()
@@ -109,12 +147,7 @@ def draw(canvas):
     border_width = 1
     number_of_stars = 100
 
-    spaceship_frames = []
-    with open("rocket_frame_1.txt", "r") as f:
-        spaceship_frames.append(f.read())
-
-    with open("rocket_frame_2.txt", "r") as f:
-        spaceship_frames.append(f.read())
+    frames = read_frames()
 
     coroutines = [
         blink(
@@ -130,7 +163,12 @@ def draw(canvas):
     y, x = max_y // 2, max_x // 2
 
     coroutines.append(fire(canvas, y, x))
-    coroutines.append(fly(canvas, y, x - 2, spaceship_frames))
+    coroutines.append(fly(canvas, y, x - 2, frames["spaceship_frames"]))
+    coroutines.append(
+        fly_garbage(
+            canvas, random.randint(1, max_x), random.choice(frames["garbage_frames"])
+        )
+    )
 
     while True:
         for coroutine in coroutines.copy():
