@@ -5,7 +5,7 @@ import random
 from itertools import cycle
 from curses_tools import draw_frame, read_controls, get_frame_size
 from physics import update_speed
-from obstacles import Obstacle, show_obstacles
+from obstacles import Obstacle, show_obstacles, has_collision
 
 
 TIC_TIMEOUT = 0.2
@@ -60,6 +60,7 @@ async def blink(canvas, row, column, offset_tics=0, symbol="*"):
 
 async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):
     """Display animation of gun shot, direction and speed can be specified."""
+    global obstacles
 
     row, column = start_row, start_column
 
@@ -75,7 +76,8 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
 
     symbol = "-" if columns_speed else "|"
 
-    # ширина и высота всегда будут на единицу больше, чем координаты крайней ячейки т.к. нумерация начинается с нуля.
+    # ширина и высота всегда будут на единицу больше, чем координаты крайней ячейки,
+    # т.к. нумерация начинается с нуля.
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows - 1, columns - 1
 
@@ -87,6 +89,14 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
         canvas.addstr(round(row), round(column), " ")
         row += rows_speed
         column += columns_speed
+
+        for obstacle in obstacles:
+            if has_collision(
+                (obstacle.row, obstacle.column),
+                (obstacle.rows_size, obstacle.columns_size),
+                (row, column),
+            ):
+                return
 
 
 async def fly(canvas, row, column, frames):
