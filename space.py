@@ -6,6 +6,7 @@ from itertools import cycle
 from curses_tools import draw_frame, read_controls, get_frame_size
 from physics import update_speed
 from obstacles import Obstacle, show_obstacles, has_collision
+from explosion import explode
 
 
 TIC_TIMEOUT = 0.2
@@ -97,6 +98,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
                 (row, column),
             ):
                 obstacles_in_last_collisions.append(obstacle)
+                await explode(canvas, row, column)
                 return
 
 
