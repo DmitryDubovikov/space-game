@@ -60,7 +60,7 @@ async def blink(canvas, row, column, offset_tics=0, symbol="*"):
 
 async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0):
     """Display animation of gun shot, direction and speed can be specified."""
-    global obstacles
+    global obstacles, obstacles_in_last_collisions
 
     row, column = start_row, start_column
 
@@ -96,6 +96,7 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
                 (obstacle.rows_size, obstacle.columns_size),
                 (row, column),
             ):
+                obstacles_in_last_collisions.append(obstacle)
                 return
 
 
@@ -147,7 +148,7 @@ async def fly(canvas, row, column, frames):
 
 async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     """Animate garbage, flying from top to bottom. Сolumn position will stay same, as specified on start."""
-    global obstacles
+    global obstacles, obstacles_in_last_collisions
 
     rows_number, columns_number = canvas.getmaxyx()
 
@@ -165,6 +166,9 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
         await sleep()
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
+        if obstacle in obstacles_in_last_collisions and obstacle in obstacles:
+            obstacles.remove(obstacle)
+            return
 
 
 async def fill_orbit_with_garbage(canvas, max_x, garbage_frames):
@@ -180,7 +184,7 @@ async def fill_orbit_with_garbage(canvas, max_x, garbage_frames):
 
 
 def draw(canvas):
-    global coroutines, obstacles
+    global coroutines, obstacles, obstacles_in_last_collisions
 
     canvas.border()
     canvas.refresh()
@@ -195,6 +199,7 @@ def draw(canvas):
     frames = read_frames()
 
     obstacles = []
+    obstacles_in_last_collisions = []
 
     coroutines = [
         blink(
