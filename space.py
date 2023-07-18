@@ -109,7 +109,7 @@ def show_text(canvas, row, column, frame):
 async def fly(canvas, row, column, frames):
     """Display animation of spaceship"""
 
-    global coroutines, obstacles_in_last_collisions
+    global coroutines, obstacles_in_last_collisions, year
 
     with open("game_over.txt", "r") as f:
         game_over_text = f.read()
@@ -141,7 +141,7 @@ async def fly(canvas, row, column, frames):
                 )
                 return
 
-        if space_pressed:
+        if space_pressed and year >= 2020:
             coroutines.append(fire(canvas, row, column + size_x // 2))
 
         if (
@@ -198,7 +198,10 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
 
 
 async def fill_orbit_with_garbage(canvas, max_x, garbage_frames):
-    global coroutines, obstacles
+    global coroutines, obstacles, year
+
+    min_tics_for_new_garbage = 5
+    tics = 15
 
     while True:
         column = random.randint(1, max_x)
@@ -206,11 +209,23 @@ async def fill_orbit_with_garbage(canvas, max_x, garbage_frames):
 
         coroutines.append(fly_garbage(canvas, column, frame))
 
-        await sleep(20)
+        if tics < min_tics_for_new_garbage:
+            tics -= year // 10 - 195
+
+        await sleep(tics)
+
+
+async def increase_year(canvas):
+    global year
+
+    while True:
+        year += 1
+        draw_frame(canvas, 1, 1, str(year))
+        await sleep(2)
 
 
 def draw(canvas):
-    global coroutines, obstacles, obstacles_in_last_collisions
+    global coroutines, obstacles, obstacles_in_last_collisions, year
 
     canvas.border()
     canvas.refresh()
@@ -226,6 +241,7 @@ def draw(canvas):
 
     obstacles = []
     obstacles_in_last_collisions = []
+    year = 1957
 
     coroutines = [
         blink(
@@ -240,10 +256,9 @@ def draw(canvas):
 
     y, x = max_y // 2, max_x // 2
 
-    coroutines.append(fire(canvas, y, x))
     coroutines.append(fly(canvas, y, x - 2, frames["spaceship_frames"]))
     coroutines.append(fill_orbit_with_garbage(canvas, max_x, frames["garbage_frames"]))
-    # coroutines.append(show_obstacles(canvas, obstacles))
+    coroutines.append(increase_year(canvas))
 
     while True:
         for coroutine in coroutines.copy():
