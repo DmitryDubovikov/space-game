@@ -102,10 +102,18 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
                 return
 
 
+def show_text(canvas, row, column, frame):
+    draw_frame(canvas, row, column, frame)
+
+
 async def fly(canvas, row, column, frames):
     """Display animation of spaceship"""
 
-    global coroutines
+    global coroutines, obstacles_in_last_collisions
+
+    with open("game_over.txt", "r") as f:
+        game_over_text = f.read()
+        game_over_size_y, game_over_size_x = get_frame_size(game_over_text)
 
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows - 1, columns - 1
@@ -116,6 +124,22 @@ async def fly(canvas, row, column, frames):
     for frame in cycle(duplicated_frames):
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
         size_y, size_x = get_frame_size(frame)
+
+        for obstacle in obstacles:
+            if has_collision(
+                (obstacle.row, obstacle.column),
+                (obstacle.rows_size, obstacle.columns_size),
+                (row, column),
+            ):
+                obstacles_in_last_collisions.append(obstacle)
+                await explode(canvas, row, column)
+                show_text(
+                    canvas,
+                    max_row // 2 - game_over_size_y // 2,
+                    max_column // 2 - game_over_size_x // 2,
+                    game_over_text,
+                )
+                return
 
         if space_pressed:
             coroutines.append(fire(canvas, row, column + size_x // 2))
