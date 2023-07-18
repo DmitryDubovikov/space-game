@@ -219,7 +219,7 @@ def draw(canvas):
     coroutines.append(fire(canvas, y, x))
     coroutines.append(fly(canvas, y, x - 2, frames["spaceship_frames"]))
     coroutines.append(fill_orbit_with_garbage(canvas, max_x, frames["garbage_frames"]))
-    coroutines.append(show_obstacles(canvas, obstacles))
+    # coroutines.append(show_obstacles(canvas, obstacles))
 
     while True:
         for coroutine in coroutines.copy():
