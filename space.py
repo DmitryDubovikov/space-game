@@ -105,14 +105,27 @@ def show_text(canvas, row, column, frame):
     draw_frame(canvas, row, column, frame)
 
 
+async def explode_spaceship(canvas, row, column):
+    with open("./animation/game_over.txt", "r") as f:
+        game_over_text = f.read()
+        game_over_size_y, game_over_size_x = get_frame_size(game_over_text)
+
+    rows, columns = canvas.getmaxyx()
+    max_row, max_column = rows - 1, columns - 1
+
+    await explode(canvas, row, column)
+    show_text(
+        canvas,
+        max_row // 2 - game_over_size_y // 2,
+        max_column // 2 - game_over_size_x // 2,
+        game_over_text,
+    )
+
+
 async def fly(canvas, row, column, frames):
     """Display animation of spaceship"""
 
     global coroutines, obstacles_in_last_collisions, year
-
-    with open("./animation/game_over.txt", "r") as f:
-        game_over_text = f.read()
-        game_over_size_y, game_over_size_x = get_frame_size(game_over_text)
 
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows - 1, columns - 1
@@ -131,13 +144,7 @@ async def fly(canvas, row, column, frames):
                 (row, column),
             ):
                 obstacles_in_last_collisions.append(obstacle)
-                await explode(canvas, row, column)
-                show_text(
-                    canvas,
-                    max_row // 2 - game_over_size_y // 2,
-                    max_column // 2 - game_over_size_x // 2,
-                    game_over_text,
-                )
+                await explode_spaceship(canvas, row, column)
                 return
 
         if space_pressed and year >= 2020:
