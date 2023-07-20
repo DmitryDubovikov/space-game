@@ -2,6 +2,7 @@ import time
 import asyncio
 import curses
 import random
+import os
 from itertools import cycle
 from curses_tools import draw_frame, read_controls, get_frame_size
 from physics import update_speed
@@ -15,23 +16,21 @@ TIC_TIMEOUT = 0.2
 def read_frames():
     frames = dict()
 
-    spaceship_frames = []
-    with open("rocket_frame_1.txt", "r") as f:
-        spaceship_frames.append(f.read())
-    with open("rocket_frame_2.txt", "r") as f:
-        spaceship_frames.append(f.read())
-    frames["spaceship_frames"] = spaceship_frames
-
-    garbage_frames = []
-    with open("trash_large.txt", "r") as f:
-        garbage_frames.append(f.read())
-    with open("trash_small.txt", "r") as f:
-        garbage_frames.append(f.read())
-    with open("trash_xl.txt", "r") as f:
-        garbage_frames.append(f.read())
-    frames["garbage_frames"] = garbage_frames
+    read_animation_frames(frames, "./animation/rocket", "spaceship_frames")
+    read_animation_frames(frames, "./animation/trash", "garbage_frames")
 
     return frames
+
+
+def read_animation_frames(frames, folder_path, animation_name):
+    animation_list = []
+    for filename in os.listdir(folder_path):
+        filepath = os.path.join(folder_path, filename)
+        if not os.path.isfile(filepath):
+            continue
+        with open(filepath, "r") as f:
+            animation_list.append(f.read())
+    frames[animation_name] = animation_list
 
 
 async def sleep(tics=1):
@@ -111,7 +110,7 @@ async def fly(canvas, row, column, frames):
 
     global coroutines, obstacles_in_last_collisions, year
 
-    with open("game_over.txt", "r") as f:
+    with open("./animation/game_over.txt", "r") as f:
         game_over_text = f.read()
         game_over_size_y, game_over_size_x = get_frame_size(game_over_text)
 
