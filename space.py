@@ -143,28 +143,21 @@ async def fly(canvas, row, column, frames):
         if space_pressed and year >= 2020:
             coroutines.append(fire(canvas, row, column + size_x // 2))
 
-        if (
-            rows_direction == 1
-            and (row + size_y < max_row)
-            or rows_direction == -1
-            and (row - 1 > 0)
-        ):
-            row_speed, column_speed = update_speed(
-                row_speed, column_speed, rows_direction, 0
-            )
-            row += row_speed
+        row_speed, column_speed = update_speed(
+            row_speed, column_speed, rows_direction, 0
+        )
 
-        if (
-            columns_direction == 1
-            and (column + size_x < max_column)
-            or columns_direction == -1
-            and (column - 1 > 0)
-        ):
-            row_speed, column_speed = update_speed(
-                row_speed, column_speed, 0, columns_direction
-            )
+        new_row = row + row_speed
+        if 1 < new_row < max_row - size_y:
+            row = new_row
 
-            column += column_speed
+        row_speed, column_speed = update_speed(
+            row_speed, column_speed, 0, columns_direction
+        )
+
+        new_column = column + column_speed
+        if 1 < new_column < max_column - size_x:
+            column = new_column
 
         draw_frame(canvas, row, column, frame)
         await sleep(1)
