@@ -6,7 +6,7 @@ import os
 from itertools import cycle
 from curses_tools import draw_frame, read_controls, get_frame_size
 from physics import update_speed
-from obstacles import Obstacle, show_obstacles, has_collision
+from obstacles import Obstacle, has_collision
 from explosion import explode
 
 
@@ -16,8 +16,8 @@ TIC_TIMEOUT = 0.2
 def read_frames():
     frames = dict()
 
-    read_animation_frames(frames, "./animation/rocket", "spaceship_frames")
-    read_animation_frames(frames, "./animation/trash", "garbage_frames")
+    read_animation_frames(frames, "./animation/spaceship", "spaceship_frames")
+    read_animation_frames(frames, "./animation/garbage", "garbage_frames")
 
     return frames
 
